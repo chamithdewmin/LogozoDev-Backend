@@ -6,30 +6,30 @@ const formRoute = require('./routes/formRoute');
 
 const app = express();
 
-// ✅ Enable CORS
+// ✅ Enable CORS for all origins (you can restrict in production)
 app.use(cors());
 
-// ✅ Serve public static HTML files (optional for general access)
+// ✅ Serve static files (e.g., HTML, CSS, JS)
 app.use(express.static(path.join(__dirname, 'files')));
 
-// ✅ Parse JSON and form data
+// ✅ Parse JSON and URL-encoded form data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ API routes
+// ✅ API routes (form submissions, etc.)
 app.use('/api', formRoute);
 
-// ✅ Admin route (secure folder or hidden file)
+// ✅ Admin panel (you can protect this later)
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'files/admin.html')); // or use 'secure/admin.html' if you create a secure folder
+  res.sendFile(path.join(__dirname, 'files', 'admin.html'));
 });
 
-// ✅ Optional default route
+// ✅ Home route (useful for testing base URL)
 app.get('/', (req, res) => {
-  res.send('🚀 Contact Form API is running!');
+  res.send('🚀 LogozoDev Contact Form API is running!');
 });
 
-// ✅ Start the server
+// ✅ Use environment port (important for Railway/Render)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
