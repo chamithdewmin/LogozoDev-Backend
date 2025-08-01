@@ -6,31 +6,25 @@ const formRoute = require('./routes/formRoute');
 
 const app = express();
 
-// ✅ Enable CORS for all origins (you can restrict in production)
-app.use(cors());
+// Allow CORS from your domain
+app.use(cors({ origin: 'https://logozodev.com' }));
 
-// ✅ Serve static files (e.g., HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, 'files')));
-
-// ✅ Parse JSON and URL-encoded form data
+// JSON & Form Data
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// ✅ API routes (form submissions, etc.)
+// Serve static admin.html (if needed)
+app.use(express.static(path.join(__dirname, 'files')));
+
+// API Route
 app.use('/api', formRoute);
 
-// ✅ Admin panel (you can protect this later)
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'files', 'admin.html'));
-});
-
-// ✅ Home route (useful for testing base URL)
+// Optional route
 app.get('/', (req, res) => {
-  res.send('🚀 LogozoDev Contact Form API is running!');
+  res.send('✅ API is live');
 });
 
-// ✅ Use environment port (important for Railway/Render)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
