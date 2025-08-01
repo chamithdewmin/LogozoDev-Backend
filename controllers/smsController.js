@@ -2,23 +2,24 @@ const mysql = require('mysql2/promise');
 const https = require('https');
 const querystring = require('querystring');
 
-// SMS API config
+// ✅ SMS API Config
 const USER_ID = "295";
 const API_KEY = "ba048971-6e14-4358-87b6-b2add09a6734";
-const SENDER_ID = "LogozoDev"; // ✅ Add your sender ID
+const SENDER_ID = "LogozoDev";
 
-// MySQL DB config
+// ✅ MySQL Config (Hostinger)
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: 'admin123',
-  database: 'contact_form_db'
+  host: 'mysql.hostinger.com',
+  user: 'u897936987_root',
+  password: 'ik*Yc1]E8G+',
+  database: 'u897936987_contact_db'
 };
 
-// 💬 Send SMS and Save to DB
+// ✅ Send SMS + Save to DB
 exports.sendSms = async (req, res) => {
   const { first_name, last_name, email, number, subject, message } = req.body;
 
+  // Validate input
   if (!first_name || !last_name || !email || !number || !message) {
     return res.status(400).json({ message: "Missing required fields" });
   }
@@ -27,13 +28,15 @@ exports.sendSms = async (req, res) => {
   const smsMessage = `Hi ${fullName},\nThanks for contacting LogozoDev. We'll reach out to you soon!`;
 
   try {
+    // 🔗 Save to MySQL
     const conn = await mysql.createConnection(dbConfig);
     await conn.execute(
-      'INSERT INTO contact_messages (first_name, last_name, email, phone, subject, message) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO contact_messages (first_name, last_name, email, number, subject, message) VALUES (?, ?, ?, ?, ?, ?)',
       [first_name, last_name, email, number, subject, message]
     );
     await conn.end();
 
+    // 📤 Send SMS
     const postData = querystring.stringify({
       user_id: USER_ID,
       api_key: API_KEY,
@@ -48,7 +51,7 @@ exports.sendSms = async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Content-Length': postData.length
+        'Content-Length': Buffer.byteLength(postData)
       }
     };
 
@@ -74,11 +77,13 @@ exports.sendSms = async (req, res) => {
   }
 };
 
-// 📥 Get All Messages (Admin Panel)
+// ✅ Get All Messages
 exports.getAllMessages = async (req, res) => {
   try {
     const conn = await mysql.createConnection(dbConfig);
-    const [rows] = await conn.execute('SELECT * FROM contact_messages ORDER BY created_at DESC');
+    const [rows] = await conn.execute(
+      'SELECT * FROM contact_messages ORDER BY created_at DESC'
+    );
     await conn.end();
 
     res.status(200).json(rows);
@@ -88,7 +93,7 @@ exports.getAllMessages = async (req, res) => {
   }
 };
 
-// ❌ Delete Message by ID
+// ✅ Delete Message by ID
 exports.deleteMessage = async (req, res) => {
   const { id } = req.params;
 
